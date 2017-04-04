@@ -1,0 +1,20 @@
+{
+  "name":              "php-devil/php-devil-configurator",
+  "description":       "description_text",
+  "minimum-stability": "dev",
+  "license":           "MIT",
+  "authors": [
+    {
+      "name":          "Alexey Volkov",
+      "email":         "alex.phpdebil@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "PhpDevil\\Common\\Configurator\\": "src"
+    }
+  },
+  "require": {
+    "symfony/yaml": "3.2.x-dev"
+  }
+}
