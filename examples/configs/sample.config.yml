@@ -1,0 +1,4 @@
+name: Sample YML Config
+
+keyA: valueA
+keyB: {keyBA: valueBA, keyBB: valueBB}

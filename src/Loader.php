@@ -2,6 +2,7 @@
 namespace PhpDevil\Common\Configurator;
 use PhpDevil\Common\Configurator\cache\FileCache;
 use PhpDevil\Common\Configurator\cache\RamCache;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class Loader
@@ -35,7 +36,7 @@ class Loader
      */
     public function enableFileCaching($cacheDirectory)
     {
-        $this->cacheStack[] = $this->cacheStack[] = ['name' => 'ran', 'class' => new FileCache($cacheDirectory)];
+        $this->cacheStack[] = ['name' => 'files', 'class' => new FileCache($cacheDirectory)];
         $this->cacheDepth = count($this->cacheStack);
     }
 
@@ -48,16 +49,36 @@ class Loader
     {
         $config = [
             'data' => null,
-            'extra' => [
+            'extras' => [
                 'isUpdated'  => false,
                 'fileName'   => str_replace('\\', '/', $pathToFile),
                 'fileExists' => file_exists($pathToFile)]
         ];
 
         $this->searchCache($pathToFile, $config);
+        if (null === $config['data']) {
+            $config['extras']['isUpdated'] = true;
+            if (file_exists($pathToFile)) {
+                switch (substr($pathToFile, strrpos($pathToFile, '.'))) {
+                    case '.yml':
+                        $config['data'] = Yaml::parse(file_get_contents($pathToFile));
+                        break;
 
+                    case '.json':
+                        $data = file_get_contents($pathToFile);
+                        $config['data'] = json_decode($data, true);
+                        break;
 
+                    default:
+                        $config['data'] = require $pathToFile;
+                }
 
+                $this->saveCache($config, $pathToFile, $this->cacheDepth);
+            } else {
+                $config['data'] = [];
+            }
+        } else {
+        }
         return $config;
     }
 
@@ -90,6 +111,19 @@ class Loader
         }
         $this->saveCache($config, $pathToFile, $cacheIndex);
     }
+
+    /**
+     * Получение класса процессора кеширования
+     *
+     * @param $cacheIndex
+     * @return mixed
+     */
+    protected function getCacheClass($cacheIndex)
+    {
+        return $this->cacheStack[$cacheIndex]['class'];
+    }
+
+
     /**
      * Сохранение данных в вышестоящих процессорах кеширования
      *
@@ -124,7 +158,7 @@ class Loader
 
     private function __construct()
     {
-        $this->cacheStack[] = $this->cacheStack[] = ['name' => 'ran', 'class' => new RamCache];
+        $this->cacheStack[] = ['name' => 'ram', 'class' => new RamCache];
         $this->cacheDepth = count($this->cacheStack);
     }
 
