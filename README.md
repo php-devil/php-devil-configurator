@@ -1,2 +1,6 @@
 # php-devil-configurator
-Configuration files reader for PHPDevil applicactions and components
+
+Компонент для обработки конфигурационных файлов в форматах
+- php
+- yml
+- json
